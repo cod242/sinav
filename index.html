@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8. Sınıf İnkılap Tarihi - Gelişmiş Sınav Provası</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --text-color: #333;
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --white: #ffffff;
+            --border-color: #ccc;
+            --canvas-bg: #fafafa;
+            --sidebar-bg: #e8f4f8;
+            --sidebar-border: #b2d8e5;
+            --overlay-bg: rgba(0, 0, 0, 0.9);
+        }
+        
+        /* Karanlık Tema Değişkenleri */
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --primary-color: #34495e;
+            --accent-color: #e74c3c;
+            --white: #2c2c2c;
+            --border-color: #555;
+            --canvas-bg: #3a3a3a;
+            --sidebar-bg: #2b3a4a;
+            --sidebar-border: #415b76;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Giriş Ekranı */
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--overlay-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s;
+        }
+        #intro-text {
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 10px rgba(255,255,255,0.2);
+            text-align: center;
+            padding: 0 10px;
+        }
+        #start-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        #start-btn:hover {
+            transform: scale(1.05);
+            background-color: #c0392b;
+        }
+
+        /* Ana İçerik */
+        .container {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            grid-column: 1 / -1;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* Tema Değiştirme Butonu */
+        #theme-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        #theme-toggle:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+
+        .exam-area {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            padding: 20px;
+            border-radius: 10px;
+            height: fit-content;
+            border: 2px solid var(--sidebar-border);
+            position: sticky;
+            top: 20px;
+        }
+        
+        .question-box {
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 0;
+            margin-bottom: 15px;
+        }
+        .question-box:last-child { border-bottom: none; }
+        
+        .question-title {
+            font-weight: bold;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        
+        .canvas-container {
+            margin-top: 10px;
+            position: relative;
+        }
+        canvas {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--canvas-bg);
+            width: 100%;
+            height: 150px;
+            cursor: crosshair;
+        }
+        
+        .controls {
+            margin-top: 5px;
+            display: flex;
+            gap: 10px;
+        }
+        button.action-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        button.action-btn:hover { filter: brightness(1.2); }
+        button.clear-btn { background-color: var(--accent-color); }
+        
+        /* Dua Bölümü */
+        .dua-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--sidebar-border);
+        }
+        .dua-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+        .arabic {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.4rem;
+            text-align: right;
+            direction: rtl;
+            margin: 5px 0;
+            color: var(--text-color);
+        }
+        .okunus {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            font-style: italic;
+            margin-bottom: 3px;
+        }
+        .turkish {
+            font-size: 0.85rem;
+            color: #777;
+        }
+        [data-theme="dark"] .turkish { color: #aaa; }
+
+        /* MOBİL UYUMLULUK (Responsive) */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: relative;
+                top: 0;
+                margin-top: 20px;
+            }
+            #intro-text {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="intro-overlay">
+    <div id="intro-text">Ben yaptım la Nebi Çakalı</div>
+    <button id="start-btn" onclick="startExam()">Başla</button>
+</div>
+
+<div class="container" id="main-content">
+    <header>
+        <h1>8. Sınıf İnkılap Tarihi</h1>
+        <p>Laiklik İlkesi Özel Çalışması</p>
+        <button id="theme-toggle" onclick="toggleTheme()">Temayı Değiştir</button>
+    </header>
+
+    <div class="exam-area">
+        
+        <div class="question-box">
+            <div class="question-title">Soru 1: Laiklik ilkesinin en temel tanımı nedir? Din ve devlet işlerinin ayrılması dışında toplum hayatına sağladığı en büyük faydayı belirtiniz.</div>
+            <div class="canvas-container">
+                <canvas id="canvas1"></canvas>
+                <div class="controls">
+                    <button class="action-btn clear-btn" onclick="clearCanvas('canvas1')">Temizle</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="question-box">
+            <div class="question-title">Soru 2: 3 Mart 1924 tarihinde kabul edilen ve Türkiye'de eğitim-öğretim birliğini sağlayan kanunun adı nedir? Bu kanunun laik eğitim sistemine geçişteki önemini kısaca açıklayınız.</div>
+            <div class="canvas-container">
+                <canvas id="canvas2"></canvas>
+                <div class="controls">
+                    <button class="action-btn clear-btn" onclick="clearCanvas('canvas2')">Temizle</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="question-box">
+            <div class="question-title">Soru 3: 1 Kasım 1922 tarihinde Saltanatın kaldırılmasıyla, devletin siyasi gücü ile dini gücü birbirinden ayrılmıştır. Bu durum doğrudan hangi ilkeye atılan ilk büyük adımdır?</div>
+            <div class="canvas-container">
+                <canvas id="canvas3"></canvas>
+                <div class="controls">
+                    <button class="action-btn clear-btn" onclick="clearCanvas('canvas3')">Temizle</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="question-box">
+            <div class="question-title">Soru 4: "Hayatta en hakiki mürşit ilimdir, fendir." Atatürk'ün bu sözü, devlet ve toplum hayatında akıl ve bilimin rehber alınmasını savunan hangi ilke ile ilişkilidir?</div>
+            <div class="canvas-container">
+                <canvas id="canvas4"></canvas>
+                <div class="controls">
+                    <button class="action-btn clear-btn" onclick="clearCanvas('canvas4')">Temizle</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="question-box">
+            <div class="question-title">Soru 5: Laiklik ilkesi, vatandaşların din, vicdan ve ibadet hürriyetini güvence altına alır. Bu durumun toplumsal barışa katkısını kısaca açıklayınız.</div>
+            <div class="canvas-container">
+                <canvas id="canvas5"></canvas>
+                <div class="controls">
+                    <button class="action-btn clear-btn" onclick="clearCanvas('canvas5')">Temizle</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="action-btn" onclick="window.print()" style="font-size: 1.1rem; padding: 10px 20px; background-color: #27ae60;">PDF Kaydet / Yazdır</button>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <h3 style="text-align: center; color: var(--text-color); margin-top: 0;">📿 Sınav Duaları</h3>
+        
+        <div class="dua-section">
+            <div class="dua-title">1. Zihin Açıklığı İçin</div>
+            <div class="arabic">رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي</div>
+            <div class="okunus"><b>Okunuşu:</b> Rabbişrah lî sadrî ve yessir lî emrî.</div>
+            <div class="turkish"><b>Anlamı:</b> "Rabbim! Göğsümü genişlet ve işimi bana kolaylaştır."</div>
+        </div>
+
+        <div class="dua-section">
+            <div class="dua-title">2. Unutmamak İçin</div>
+            <div class="arabic">رَبِّ زِدْنِي عِلْمًا وَفَهْمًا</div>
+            <div class="okunus"><b>Okunuşu:</b> Rabbi zidnî ilmen ve fehmen.</div>
+            <div class="turkish"><b>Anlamı:</b> "Rabbim! İlmimi ve anlayışımı artır."</div>
+        </div>
+
+        <div class="dua-section">
+            <div class="dua-title">3. Başarı İçin</div>
+            <div class="arabic">رَبِّ يَسِّرْ وَلاَ تُعَسِّرْ رَبِّ تَمِّمْ بِالْخَيْرِ</div>
+            <div class="okunus"><b>Okunuşu:</b> Rabbi yessir velâ tuassir Rabbi temmim bil-hayr.</div>
+            <div class="turkish"><b>Anlamı:</b> "Rabbim! Kolaylaştır, zorlaştırma. Rabbim, işimi hayırla tamamla."</div>
+        </div>
+        
+        <p style="font-size: 0.8rem; text-align: center; color: #7f8c8d; margin-top: 30px;">Zihnin açık, kalemin güçlü olsun kral! Başarılar.</p>
+    </div>
+</div>
+
+<script>
+    // Giriş Ekranını Kapatma
+    function startExam() {
+        document.getElementById('intro-overlay').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('intro-overlay').style.display = 'none';
+            document.getElementById('main-content').style.opacity = '1';
+        }, 500);
+    }
+
+    // Tema Değiştirme (Açık/Koyu)
+    function toggleTheme() {
+        const currentTheme = document.body.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.body.removeAttribute('data-theme');
+        } else {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    }
+
+    // Kalem Modu Çizim Fonksiyonları
+    function setupCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        
+        // Canvas genişliğini ekran boyutuna göre dinamik ayarlama
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        let isDrawing = false;
+        
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            if (e.touches) {
+                return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+            }
+            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            // Dinamik tema rengine göre çizim rengini ayarla
+            ctx.strokeStyle = document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#2c3e50';
+            
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+
+        // Fare olayları
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        
+        // Dokunmatik ekran olayları (Mobil için)
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDrawing);
+    }
+
+    function clearCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Sayfa yüklendiğinde tüm canvasları aktif et
+    window.onload = function() {
+        setupCanvas('canvas1');
+        setupCanvas('canvas2');
+        setupCanvas('canvas3');
+        setupCanvas('canvas4');
+        setupCanvas('canvas5');
+    };
+</script>
+
+</body>
+</html>
